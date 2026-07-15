@@ -1,0 +1,91 @@
+services:
+  server:
+    image: ghcr.io/immich-app/immich-server:${IMMICH_VERSION:-release}
+    restart: unless-stopped
+    volumes:
+      # Shared NFS volume for heavy raw photo/video assets
+      - immich_library:/usr/src/app/upload
+      # Local timezone file
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      - DB_HOSTNAME=postgres # Routes perfectly via local network service name
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_DATABASE_NAME=${DB_DATABASE_NAME}
+      - REDIS_HOSTNAME=redis # Routes perfectly via local network service name
+    networks:
+      - dokploy-network
+    depends_on:
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:2283/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  machine-learning:
+    image: ghcr.io/immich-app/immich-machine-learning:${IMMICH_VERSION:-release}
+    restart: unless-stopped
+    volumes:
+      # ML models cache folder kept on fast Local-LVM to speed up AI generation tasks
+      - immich_model_cache:/cache
+    networks:
+      - dokploy-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3003/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  redis:
+    image: docker.io/library/redis:7-alpine
+    restart: unless-stopped
+    networks:
+      - dokploy-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  postgres:
+    image: docker.io/tensorchord/pgvecto-rs:pg16-v0.2.0
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=${DB_USERNAME}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_DATABASE_NAME}
+      - POSTGRES_INITDB_ARGS=--data-checksums # Core data integrity protocol
+    volumes:
+      # Immich DB data stays on local-lvm for maximum IOPS and stability
+      - immich_postgres_data:/var/lib/postgresql/data
+    networks:
+      - dokploy-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  # Fast storage tracking volumes
+  immich_postgres_data:
+    driver: local
+  immich_model_cache:
+    driver: local
+
+  # NFS bind volume tracking
+  immich_library:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/pve/shared-data/immich/library
+
+networks:
+  dokploy-network:
+    external: true

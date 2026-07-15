@@ -1,0 +1,28 @@
+services:
+  uptime-kuma:
+    image: louislam/uptime-kuma:2
+    restart: unless-stopped
+    environment:
+      UPTIME_KUMA_PORT: 3001
+    volumes:
+      - uptime-kuma-data:/app/data
+    expose:
+      - "3001"
+    healthcheck:
+      test: ["CMD", "node", "/app/extra/healthcheck.js"] # Native, lightweight check script
+      interval: 30s # Time between consecutive health check executions
+      timeout: 5s # Max time allowed for the script to return a success status
+      retries: 3 # Failed attempts required before flagging as "unhealthy"
+      start_period: 15s # In
+    networks:
+      - dokploy-network
+    security_opt:
+      - no-new-privileges:true
+
+volumes:
+  uptime-kuma-data:
+    driver: local
+
+networks:
+  dokploy-network:
+    external: true

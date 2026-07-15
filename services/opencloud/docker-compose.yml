@@ -1,0 +1,79 @@
+services:
+  opencloud-web:
+    image: opencloudeu/opencloud:latest # Pulls stable downstream OpenCloud binary
+    restart: unless-stopped
+    networks:
+      - dokploy-network
+    volumes:
+      # Local-LVM Storage for system variables, configs, metadata indexes
+      - opencloud_config:/var/lib/opencloud/config
+      # Shared NFS Storage for bulk user files, media uploads, and assets
+      - opencloud_data:/var/lib/opencloud/data
+    environment:
+      # General Settings
+      - OC_DOMAIN=${OPENCLOUD_PUBLIC_DOMAIN} # e.g. ://yourdomain.com
+      - INITIAL_ADMIN_PASSWORD=${ADMIN_PASSWORD}
+
+      # Shared PostgreSQL Integration
+      - OPENCLOUD_DB_ENGINE=postgres
+      # Cross-stack service naming pattern: [project-name]-[app-name]-[service-name]
+      - OPENCLOUD_DB_HOST=homelab-databases-postgres
+      - OPENCLOUD_DB_PORT=5432
+      - OPENCLOUD_DB_NAME=opencloud_db
+      - OPENCLOUD_DB_USER=${DB_USER}
+      - OPENCLOUD_DB_PASSWORD=${DB_PASS}
+
+      # ONLYOFFICE / WOPI Co-Integration
+      - COLLABORATION_WOPI_SRC=http://onlyoffice:80 # Points directly to internal compose DNS
+      - COLLABORATION_APP_NAME=ONLYOFFICE Docs
+      - OC_ADD_RUN_SERVICES=collaboration # Activates the microservice bridge layer
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9200/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  onlyoffice:
+    image: onlyoffice/documentserver:latest
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - dokploy-network
+    volumes:
+      - onlyoffice_data:/var/www/onlyoffice/Data
+      - onlyoffice_logs:/var/log/onlyoffice
+    environment:
+      # Token authentication ensures public instances can't hijack your document server
+      - JWT_ENABLED=true
+      - JWT_SECRET=${ONLYOFFICE_JWT_SECRET}
+      - JWT_HEADER=AuthorizationJwt
+      # Bypasses local routing blocks for local Docker-to-Docker routing loops
+      - ALLOW_PRIVATE_IP_ADDRESS=true
+      - USE_UNAUTHORIZED_STORAGE=true
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/healthcheck"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  # Local-LVM volumes
+  opencloud_config:
+    driver: local
+  onlyoffice_data:
+    driver: local
+  onlyoffice_logs:
+    driver: local
+
+  # NFS Bound named volume for user bulk storage
+  opencloud_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/pve/shared-data/opencloud/data
+
+networks:
+  dokploy-network:
+    external: true

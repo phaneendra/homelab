@@ -1,0 +1,81 @@
+services:
+  paperless-ngx:
+    image: ghcr.io/paperless-ngx/paperless-ngx:latest
+    restart: unless-stopped
+    environment:
+      PAPERLESS_REDIS: redis://paperless-redis:6379
+      PAPERLESS_DBHOST: ${PAPERLESS_DBHOST:-shared-postgres}
+      PAPERLESS_DBPORT: ${PAPERLESS_DBPORT:-5432}
+      PAPERLESS_DBNAME: ${PAPERLESS_DBNAME:-paperless}
+      PAPERLESS_DBUSER: ${PAPERLESS_DBUSER:-paperless}
+      PAPERLESS_DBPASS: ${PAPERLESS_DBPASS:?Set PAPERLESS_DBPASS in your environment}
+      PAPERLESS_URL: ${PAPERLESS_URL:-http://paperless-ngx.phanee.in}
+      PAPERLESS_TIME_ZONE: ${PAPERLESS_TIME_ZONE:-UTC}
+      PAPERLESS_OCR_LANGUAGE: ${PAPERLESS_OCR_LANGUAGE:-eng}
+      PAPERLESS_SECRET_KEY: ${PAPERLESS_SECRET_KEY:?Set PAPERLESS_SECRET_KEY in your environment}
+    expose:
+      - "8000"
+    depends_on:
+      paperless-redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    volumes:
+      # All volumes are now clean, standardized Named Volumes
+      - paperless_data:/usr/src/paperless/data
+      - paperless_media:/usr/src/paperless/media
+      - paperless_export:/usr/src/paperless/export
+      - paperless_consume:/usr/src/paperless/consume
+    networks:
+      - dokploy-network
+
+  paperless-redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--save", "", "--appendonly", "no"]
+    volumes:
+      - paperless_redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - dokploy-network
+
+volumes:
+  # 1. Local-LVM Storage Volumes (Standard managed volumes)
+  paperless_data:
+    driver: local
+  paperless_redis_data:
+    driver: local
+
+  # 2. NFS Storage Named Volumes (Explicitly mapped to your PVE Host Paths)
+  paperless_media:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/pve/shared-data/paperless/media
+
+  paperless_export:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/pve/shared-data/paperless/export
+
+  paperless_consume:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/pve/shared-data/paperless/consume
+
+networks:
+  dokploy-network:
+    external: true

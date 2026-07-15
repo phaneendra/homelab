@@ -1,0 +1,40 @@
+services:
+  samba-server:
+    image: dockurr/samba:latest
+    restart: unless-stopped
+    ports:
+      - "139:139"
+      - "445:445"
+    networks:
+      - dokploy-network
+    environment:
+      NAME: "${SAMBA_SHARE_NAME}"
+      USER: "${SAMBA_USER}"
+      PASS: "${SAMBA_PASSWORD}"
+      UID: "1000"
+      GID: "1000"
+    volumes:
+      # Named volume pointing to your 650GB NVMe storage pool
+      - nuc_master_storage:/storage
+      # Named volume for isolated logging files
+      - samba_logs:/var/log/samba
+    healthcheck:
+      test: ["CMD-SHELL", "smbclient -L //localhost -U % || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+
+volumes:
+  # This configures a Named Volume to target your exact absolute host directory path
+  nuc_master_storage:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/shared-data
+  samba_logs:
+
+networks:
+  dokploy-network:
+    external: true
