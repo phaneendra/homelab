@@ -13,7 +13,7 @@ services:
     expose:
       - "5432"
     volumes:
-      - postgres-data:/var/lib/postgresql/data
+      - postgres-data:/var/lib/postgresql
       - ../files/init-multiple-databases.sh:/docker-entrypoint-initdb.d/init-multiple-databases.sh:ro
     healthcheck:
       test:
@@ -35,7 +35,7 @@ volumes:
       o: 'bind'
       # Absolute path to your VirtioFS 650GB storage location
       device: '/mnt/shared-storage/postgres'
-      
+
 networks:
   dokploy-network:
     external: true
