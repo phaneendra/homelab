@@ -3,6 +3,8 @@ services:
     image: pgvector/pgvector:pg18
     container_name: shared-postgres
     restart: unless-stopped
+    # Expands shared memory allocation from default 64MB to 1GB for vector indices
+    shm_size: '1gb'
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
@@ -27,7 +29,13 @@ services:
 
 volumes:
   postgres-data:
-
+    driver: local
+    driver_opts:
+      type: 'none'
+      o: 'bind'
+      # Absolute path to your VirtioFS 650GB storage location
+      device: '/mnt/shared-storage/postgres'
+      
 networks:
   dokploy-network:
     external: true
