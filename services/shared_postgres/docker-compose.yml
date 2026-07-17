@@ -1,5 +1,5 @@
 services:
-  postgres:
+  shared-postgres:
     image: pgvector/pgvector:pg18
     restart: unless-stopped
     # Expands shared memory allocation from default 64MB to 1GB for vector indices
