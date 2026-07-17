@@ -1,7 +1,6 @@
 services:
   postgres:
     image: pgvector/pgvector:pg18
-    container_name: shared-postgres
     restart: unless-stopped
     # Expands shared memory allocation from default 64MB to 1GB for vector indices
     shm_size: '1gb'
@@ -13,7 +12,7 @@ services:
     # expose:
     #   - "5432"
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432"
     volumes:
       - postgres-data:/var/lib/postgresql
       - /mnt/shared-storage/postgres/init-scripts/init-multiple-databases.sh:/docker-entrypoint-initdb.d/init-multiple-databases.sh:ro
