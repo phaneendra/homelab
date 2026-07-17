@@ -79,21 +79,21 @@ volumes:
     driver_opts:
       type: none
       o: bind
-      device: /mnt/shared-data/onlyoffice/data
+      device: /mnt/shared-storage/onlyoffice/data
 
   onlyoffice_logs:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: /mnt/shared-data/onlyoffice/logs
+      device: /mnt/shared-storage/onlyoffice/logs
   
   opencloud_data:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: /mnt/shared-data/opencloud-data
+      device: /mnt/shared-storage/opencloud-data
 
 networks:
   dokploy-network:
