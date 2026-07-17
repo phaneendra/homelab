@@ -16,9 +16,11 @@ services:
       - OC_DOMAIN=${OPENCLOUD_PUBLIC_DOMAIN} # e.g. ://yourdomain.com
       - INITIAL_ADMIN_PASSWORD=${ADMIN_PASSWORD}
 
+      - OC_JWT_SECRET=${OC_JWT_SECRET}
+      - OC_TRANSFER_SECRET=${OC_TRANSFER_SECRET}
+
       # Shared PostgreSQL Integration
       - OPENCLOUD_DB_ENGINE=postgres
-      # Cross-stack service naming pattern: [project-name]-[app-name]-[service-name]
       - OPENCLOUD_DB_HOST=shared-postgres # Points directly to internal compose DNS
       - OPENCLOUD_DB_PORT=5432
       - OPENCLOUD_DB_NAME=opencloud
