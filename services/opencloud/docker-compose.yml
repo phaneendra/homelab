@@ -2,6 +2,8 @@ services:
   opencloud-web:
     image: opencloudeu/opencloud:latest # Pulls stable downstream OpenCloud binary
     restart: unless-stopped
+    expose:
+      - "9200"
     networks:
       - dokploy-network
     volumes:
@@ -17,11 +19,11 @@ services:
       # Shared PostgreSQL Integration
       - OPENCLOUD_DB_ENGINE=postgres
       # Cross-stack service naming pattern: [project-name]-[app-name]-[service-name]
-      - OPENCLOUD_DB_HOST=homelab-databases-postgres
+      - OPENCLOUD_DB_HOST=shared-postgres # Points directly to internal compose DNS
       - OPENCLOUD_DB_PORT=5432
-      - OPENCLOUD_DB_NAME=opencloud_db
-      - OPENCLOUD_DB_USER=${DB_USER}
-      - OPENCLOUD_DB_PASSWORD=${DB_PASS}
+      - OPENCLOUD_DB_NAME=opencloud
+      - OPENCLOUD_DB_USER=${OPENCLOUD_DB_USER}
+      - OPENCLOUD_DB_PASSWORD=${OPENCLOUD_DB_PASSWORD}
 
       # ONLYOFFICE / WOPI Co-Integration
       - COLLABORATION_WOPI_SRC=http://onlyoffice:80 # Points directly to internal compose DNS
@@ -36,6 +38,8 @@ services:
   onlyoffice:
     image: onlyoffice/documentserver:latest
     restart: unless-stopped
+    expose:
+      - "80"
     security_opt:
       - no-new-privileges:true
     networks:
@@ -48,6 +52,13 @@ services:
       - JWT_ENABLED=true
       - JWT_SECRET=${ONLYOFFICE_JWT_SECRET}
       - JWT_HEADER=AuthorizationJwt
+      # Instruct OnlyOffice to bypass internal database loops and use your shared Postgres
+      - DB_TYPE=postgres
+      - DB_HOST=shared-postgres # Points directly to internal compose DNS name
+      - DB_PORT=5432
+      - DB_NAME=onlyoffice
+      - DB_USER=${ONLYOFFICE_DB_USER}
+      - DB_PASSWORD=${ONLYOFFICE_DB_PASSWORD}
       # Bypasses local routing blocks for local Docker-to-Docker routing loops
       - ALLOW_PRIVATE_IP_ADDRESS=true
       - USE_UNAUTHORIZED_STORAGE=true
@@ -72,7 +83,7 @@ volumes:
     driver_opts:
       type: none
       o: bind
-      device: /mnt/pve/shared-data/opencloud/data
+      device: /mnt/shared-data/opencloud/data
 
 networks:
   dokploy-network:
