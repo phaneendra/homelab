@@ -10,8 +10,10 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB:-postgres}
       MULTIPLE_DATABASES: ${MULTIPLE_DATABASES:-}
-    expose:
-      - "5432"
+    # expose:
+    #   - "5432"
+    ports:
+      - "5432:5432"
     volumes:
       - postgres-data:/var/lib/postgresql
       - /mnt/shared-storage/postgres/init-scripts/init-multiple-databases.sh:/docker-entrypoint-initdb.d/init-multiple-databases.sh:ro
