@@ -72,18 +72,28 @@ volumes:
   # Local-LVM volumes
   opencloud_config:
     driver: local
+  
+  # Bound named volume for user bulk storage
   onlyoffice_data:
     driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/shared-data/onlyoffice/data
+
   onlyoffice_logs:
     driver: local
-
-  # NFS Bound named volume for user bulk storage
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/shared-data/onlyoffice/logs
+  
   opencloud_data:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: /mnt/shared-data/opencloud/data
+      device: /mnt/shared-data/opencloud-data
 
 networks:
   dokploy-network:
