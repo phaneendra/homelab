@@ -2,6 +2,9 @@ services:
   opencloud-web:
     image: opencloudeu/opencloud:latest # Pulls stable downstream OpenCloud binary
     restart: unless-stopped
+     # 🔄 AUTOMATED SELF-HEALING RECREATION WRAPPER
+    entrypoint: /bin/sh
+    command: ["-c", "if [ ! -f /etc/opencloud/opencloud.yaml ]; then opencloud init; fi; opencloud server"]
     expose:
       - "9200"
     networks:
