@@ -21,6 +21,9 @@ services:
       - OC_INSECURE=true # Tells internal microservices that HTTP behind proxy is safe
       - PROXY_TLS=false # Bypasses local SSL certificate checks inside the container
       - PROXY_HTTP_ADDR=0.0.0.0:9200
+      # 🚀 THE REDIRECT RESOLUTION KEY:
+      # Forces OpenCloud's internal OIDC identity provider to accept cookie tokens over HTTP behind Traefik
+      - OC_JWT_SECRET_SECURE=false
     
     # 🌐 TRAEFIK PROXY HEADER INJECTIONS (Brakes the Redirect Loop)
     labels:
