@@ -18,6 +18,10 @@ services:
       - OC_INSECURE=true # Tells internal microservices that HTTP behind proxy is safe
       - PROXY_TLS=false # Bypasses local SSL certificate checks inside the container
       - PROXY_HTTP_ADDR=0.0.0.0:9200
+      
+      # 🌐 ADD THESE TO RESCUE RE-DIRECTION CONFLICTS
+      - PROXY_HTTP_REWRITE_PREREQUISITES=true
+      - PROXY_HTTP_USE_FORWARDED_HEADERS=true      
 
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9200/healthz"]
