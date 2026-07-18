@@ -17,6 +17,7 @@ services:
       - OC_LOG_LEVEL=warn # e.g. debug, info, warn, error
       - OC_INSECURE=true # Tells internal microservices that HTTP behind proxy is safe
       - PROXY_TLS=false # Bypasses local SSL certificate checks inside the container
+      - PROXY_HTTP_ADDR=0.0.0.0:9200
 
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9200/healthz"]
