@@ -24,6 +24,14 @@ services:
       # 🚀 THE REDIRECT RESOLUTION KEY:
       # Forces OpenCloud's internal OIDC identity provider to accept cookie tokens over HTTP behind Traefik
       - OC_JWT_SECRET_SECURE=false
+      # 🚀 MANDATORY EXTENSION ENABLER FLAGS FOR ONLYOFFICE INTEGRATION:
+      - COLLABORATION_ENABLED=true
+      - COLLABORATION_APP_PRODUCT=OnlyOffice
+      - COLLABORATION_APP_ADDR=http://onlyoffice:80 # Routes backend file transfers internally 
+      - COLLABORATION_APP_INSECURE=true
+      # 🔐 MUST match your onlyoffice JWT_SECRET token string exactly
+      - COLLABORATION_JWT_SECRET=${ONLYOFFICE_JWT_SECRET}
+
     
     # 🌐 TRAEFIK PROXY HEADER INJECTIONS (Brakes the Redirect Loop)
     labels:
