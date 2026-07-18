@@ -21,10 +21,15 @@ services:
       - OC_INSECURE=true # Tells internal microservices that HTTP behind proxy is safe
       - PROXY_TLS=false # Bypasses local SSL certificate checks inside the container
       - PROXY_HTTP_ADDR=0.0.0.0:9200
-      
-      # 🌐 ADD THESE TO RESCUE RE-DIRECTION CONFLICTS
-      - PROXY_HTTP_REWRITE_PREREQUISITES=true
-      - PROXY_HTTP_USE_FORWARDED_HEADERS=true      
+    
+    # 🌐 TRAEFIK PROXY HEADER INJECTIONS (Brakes the Redirect Loop)
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.opencloud-router.entrypoints=web"
+      - "traefik.http.routers.opencloud-router.rule=Host(`opencloud.phanee.in`)"
+      - "traefik.http.routers.opencloud-router.middlewares=opencloud-headers"
+      - "traefik.http.middlewares.opencloud-headers.headers.customrequestheaders.X-Forwarded-Proto=https"
+      - "traefik.http.middlewares.opencloud-headers.headers.sslproxyheaders.X-Forwarded-Proto=https"
 
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9200/healthz"]
