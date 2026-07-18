@@ -7,48 +7,23 @@ services:
     networks:
       - dokploy-network
     volumes:
-      # Local-LVM Storage for system variables, configs, metadata indexes
-      - opencloud_config:/var/lib/opencloud/config
-      # Shared NFS Storage for bulk user files, media uploads, and assets
-      - opencloud_data:/var/lib/opencloud/data
+      # Shared Storage for system variables, configs, metadata indexes
+      - opencloud_config:/etc/opencloud
+      # Shared Storage for bulk user files, media uploads, and assets
+      - opencloud_data:/var/lib/opencloud
     environment:
       # General Settings
-      - OC_DOMAIN=${OPENCLOUD_PUBLIC_DOMAIN} # e.g. ://yourdomain.com
-      - INITIAL_ADMIN_PASSWORD=${ADMIN_PASSWORD}
+      - OC_URL=${OC_URL} # e.g. https://opencloud.yourdomain.com
+      - OC_LOG_LEVEL=warn # e.g. debug, info, warn, error
+      - OC_INSECURE=true # Tells internal microservices that HTTP behind proxy is safe
+      - PROXY_TLS=false # Bypasses local SSL certificate checks inside the container
 
-      # 🔐 CORE CRYPTOGRAPHIC SECRETS FOR OPENCLOUD
-      - OC_JWT_SECRET=${OC_JWT_SECRET}
-      - OC_TRANSFER_SECRET=${OC_TRANSFER_SECRET}  
-
-      # 🔐 NEW CROSS-SERVICE MANDATORY TOKENS
-      - OC_MACHINE_AUTH_API_KEY=${OC_MACHINE_AUTH_API_KEY}
-      - OC_SYSTEM_USER_API_KEY=${OC_SYSTEM_USER_API_KEY}
-      - OC_SYSTEM_USER_ID=${OC_SYSTEM_USER_ID}  # Standardized fallback UUID
-      - OC_SERVICE_ACCOUNT_ID=${OC_SERVICE_ACCOUNT_ID}
-      - OC_SERVICE_ACCOUNT_SECRET=${OC_SERVICE_ACCOUNT_SECRET}
-
-      # 🌐 STORAGE REGISTRY AND GATEWAY MOUNT CONFIGURATIONS
-      - OC_GATEWAY_STORAGE_USERS_MOUNT_ID=${OC_GATEWAY_STORAGE_USERS_MOUNT_ID}
-      - OC_STORAGE_USERS_MOUNT_ID=${OC_STORAGE_USERS_MOUNT_ID}
-
-
-      # Shared PostgreSQL Integration
-      - OPENCLOUD_DB_ENGINE=postgres
-      - OPENCLOUD_DB_HOST=shared-postgres # Points directly to internal compose DNS
-      - OPENCLOUD_DB_PORT=5432
-      - OPENCLOUD_DB_NAME=opencloud
-      - OPENCLOUD_DB_USER=${OPENCLOUD_DB_USER}
-      - OPENCLOUD_DB_PASSWORD=${OPENCLOUD_DB_PASSWORD}
-
-      # ONLYOFFICE / WOPI Co-Integration
-      - COLLABORATION_WOPI_SRC=http://onlyoffice:80 # Points directly to internal compose DNS
-      - COLLABORATION_APP_NAME=ONLYOFFICE Docs
-      - OC_ADD_RUN_SERVICES=collaboration # Activates the microservice bridge layer
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9200/healthz"]
       interval: 30s
       timeout: 10s
       retries: 3
+      start_period: 15s
 
   onlyoffice:
     image: onlyoffice/documentserver:latest
@@ -78,15 +53,20 @@ services:
       - ALLOW_PRIVATE_IP_ADDRESS=true
       - USE_UNAUTHORIZED_STORAGE=true
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost/healthcheck"]
+      test: ["CMD", "curl", "-f", "http://localhost:80/healthcheck"]
       interval: 30s
       timeout: 10s
       retries: 3
+      start_period: 30s # OnlyOffice can take longer to complete its initial structural compilation
 
 volumes:
   # Local-LVM volumes
   opencloud_config:
     driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/shared-storage/opencloud-data/config
   
   # Bound named volume for user bulk storage
   onlyoffice_data:
