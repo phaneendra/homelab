@@ -18,8 +18,8 @@ services:
       - dokploy-network
     ports:
       - "2283" # Expose internally for Dokploy to capture, don't map to host 2283:2283
-    labels:
-      - "traefik.http.routers.${DOKPLOY_APP_ID}.tls=false"
+    # labels:
+    #   - "traefik.http.routers.${DOKPLOY_APP_ID}.tls=false"
     depends_on:
       redis:
         condition: service_healthy
