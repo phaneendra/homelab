@@ -1,0 +1,39 @@
+services:
+  glance:
+    image: glanceapp/glance:latest
+    restart: unless-stopped
+    # Dokploy assigns random container names internally to manage logging safely.
+    # Avoiding explicit container_name strings prevents deployment collisions.
+    networks:
+      - dokploy-network
+    ports:
+      - "8080" # Exposed internally for Dokploy's built-in Traefik routing
+    volumes:
+      # Use Dokploy's persistent file directory for configurations
+      - glance_config:/app/config
+      - glance_assets:/app/assets
+      # Sync the host timezone & system clock with the container
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+      # OPTIONAL: Uncomment the line below if you want the "Docker Containers" widget 
+      # to monitor your other container's statuses on the server
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      
+volumes:
+  glance_config:
+    driver: local
+    driver_opts:
+      type: 'none'
+      o: 'bind'
+      device: '/mnt/shared-storage/glance/config'
+
+  glance_assets:
+    driver: local
+    driver_opts:
+      type: 'none'
+      o: 'bind'
+      device: '/mnt/shared-storage/glance/assets'
+
+networks:
+  dokploy-network:
+    external: true
