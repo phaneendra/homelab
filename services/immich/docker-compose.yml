@@ -19,11 +19,7 @@ services:
     ports:
       - "2283" # Expose internally for Dokploy to capture, don't map to host 2283:2283
     labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.immich.rule=Host(`${IMMICH_DOMAIN}`)"
-      - "traefik.http.routers.immich.entrypoints=web"
-      - "traefik.http.services.immich.loadbalancer.server.port=2283"
-      - "traefik.http.routers.immich.tls=false"    
+      - "traefik.http.routers.${DOKPLOY_APP_ID}.tls=false"
     depends_on:
       redis:
         condition: service_healthy
