@@ -242,3 +242,5 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
+# temporary files and folders
+scratch

@@ -1,0 +1,25 @@
+services:
+  homepage:
+    image: ghcr.io/gethomepage/homepage:latest
+    restart: unless-stopped
+    networks:
+      - dokploy-network
+    ports:
+      - "8080" # Internal proxy port for Dokploy Traefik routing
+    volumes:
+      # Named volumes pointing back to your 650GB local storage array
+      - homepage_config:/app/config
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+
+networks:
+  dokploy-network:
+    external: true
+
+volumes:
+  homepage_config:
+    driver: local
+    driver_opts:
+      type: 'none'
+      o: 'bind'
+      device: '/mnt/shared-storage/homepage/config'
