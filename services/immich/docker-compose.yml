@@ -13,7 +13,7 @@ services:
       - DB_PASSWORD=${DB_PASSWORD}
       - DB_DATABASE_NAME=${DB_DATABASE_NAME}
       - REDIS_HOSTNAME=redis # Routes perfectly via local network service name
-      - TZ: ${TZ}
+      - TZ=${TZ}
     networks:
       - dokploy-network
     ports:
