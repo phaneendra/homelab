@@ -13,8 +13,17 @@ services:
       - DB_PASSWORD=${DB_PASSWORD}
       - DB_DATABASE_NAME=${DB_DATABASE_NAME}
       - REDIS_HOSTNAME=redis # Routes perfectly via local network service name
+      - TZ: ${TZ}
     networks:
       - dokploy-network
+    ports:
+      - "2283" # Expose internally for Dokploy to capture, don't map to host 2283:2283
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.immich.rule=Host(`${IMMICH_DOMAIN}`)"
+      - "traefik.http.routers.immich.entrypoints=web"
+      - "traefik.http.services.immich.loadbalancer.server.port=2283"
+      - "traefik.http.routers.immich.tls=false"    
     depends_on:
       redis:
         condition: service_healthy
@@ -42,18 +51,18 @@ services:
       retries: 3
 
   redis:
-    image: docker.io/library/redis:7-alpine
+    image: docker.io/valkey/valkey:8-alpine
     restart: unless-stopped
     networks:
       - dokploy-network
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ["CMD-SHELL", "valkey-cli ping || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 5
 
   postgres:
-    image: docker.io/tensorchord/pgvecto-rs:pg16-v0.2.0
+    image: ghcr.io/immich-app/postgres:16-vectorchord0.3.0-pgvectors0.3.0
     restart: unless-stopped
     environment:
       - POSTGRES_USER=${DB_USERNAME}
@@ -75,6 +84,10 @@ volumes:
   # Fast storage tracking volumes
   immich_postgres_data:
     driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/shared-storage/immich/pgdata    
   immich_model_cache:
     driver: local
 
@@ -84,7 +97,7 @@ volumes:
     driver_opts:
       type: none
       o: bind
-      device: /mnt/pve/shared-data/immich/library
+      device: /mnt/shared-storage/immich/library
 
 networks:
   dokploy-network:
