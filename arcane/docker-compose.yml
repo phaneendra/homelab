@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  arcane:
+    image: ghcr.io/getarcaneapp/manager:latest
+    container_name: arcane
+    ports:
+      - '3552:3552'
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      # Map the named volume to Arcane's internal system folder
+      - arcane-system-data:/app/data
+      # Map the shared storage mount point directly into Arcane
+      - /mnt/shared-storage:/mnt/shared-storage
+    environment:
+      - TZ=UTC
+      - PUID=1000
+      - PGID=1000
+      - APP_URL=${ARCANE_APP_URL:?}
+      # CRUCIAL: Direct Arcane to deploy new Git projects inside your storage mount
+      - PROJECTS_DIRECTORY=${ARCANE_PROJECTS_DIRECTORY:?}
+      - ENCRYPTION_KEY=${ARCANE_ENCRYPTION_KEY:?}
+      - JWT_SECRET=${ARCANE_JWT_SECRET:?}
+    cgroup: host
+    restart: unless-stopped
+
+volumes:
+  # Named volume backed by your specific /mnt/shared-storage directory
+  arcane-system-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/shared-storage/arcane-system
