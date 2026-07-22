@@ -11,14 +11,14 @@ services:
       # Map the named volume to Arcane's internal system folder
       - arcane-system-data:/app/data
       # Map the shared storage mount point directly into Arcane
-      - /mnt/shared-storage:/mnt/shared-storage
+      - ${DOCKER_VOLUME_STORAGE:-/mnt/shared-storage}:/mnt/shared-storage
     environment:
       - TZ=UTC
       - PUID=1000
       - PGID=1000
       - APP_URL=${ARCANE_APP_URL:?}
       # CRUCIAL: Direct Arcane to deploy new Git projects inside your storage mount
-      - PROJECTS_DIRECTORY=${ARCANE_PROJECTS_DIRECTORY:?}
+      - PROJECTS_DIRECTORY=${ARCANE_PROJECTS_DIRECTORY:-/mnt/shared-storage/docker-stacks}
       - ENCRYPTION_KEY=${ARCANE_ENCRYPTION_KEY:?}
       - JWT_SECRET=${ARCANE_JWT_SECRET:?}
     cgroup: host
@@ -31,4 +31,4 @@ volumes:
     driver_opts:
       type: none
       o: bind
-      device: /mnt/shared-storage/arcane-system
+      device: ${DOCKER_VOLUME_STORAGE:-/mnt/shared-storage/docker-stacks}/arcane/data
