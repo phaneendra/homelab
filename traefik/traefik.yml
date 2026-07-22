@@ -1,0 +1,52 @@
+# Dashboard served via router label in compose.yaml; insecure: true opens port 8080
+# on the traefik bridge and macvlan (LAN-only) for traefik-manager API access
+api:
+  dashboard: true
+  insecure: true
+
+# Entry points are the network ports Traefik listens on
+entryPoints:
+  web:
+    address: ":80"
+    http:
+      redirections:
+        entryPoint:
+          to: websecure     # Globally redirect all HTTP → HTTPS
+          scheme: https
+          permanent: true   # 301 — browsers cache this and stop hitting port 80
+  websecure:
+    address: ":443"
+    http:
+      tls:
+        certResolver: letsencrypt   # Default cert resolver for all HTTPS routers
+
+# Tells Traefik to discover services/routes from Docker container labels
+providers:
+  docker:
+    exposedByDefault: false  # Containers must opt-in via traefik.enable=true label
+    network: traefik         # Only route containers attached to this Docker network
+  file:
+    directory: /etc/traefik/dynamic   # Shared middlewares and non-Docker routes
+    watch: true                       # Picks up changes without restarting Traefik
+
+# Exposes Traefik's own metrics at http://traefik:8082/metrics for Prometheus
+metrics:
+  prometheus:
+    entryPoint: metrics
+
+log:
+  level: INFO
+
+accessLog: {}   # Log every request — useful for troubleshooting
+
+# Automatic Let's Encrypt TLS certificates via Cloudflare DNS challenge
+certificatesResolvers:
+  letsencrypt:
+    acme:
+      email: "daniel@virtuallyboring.com"
+      storage: /letsencrypt/acme.json   # Persisted via the traefik-certs volume
+      dnsChallenge:
+        provider: cloudflare
+        resolvers:
+          - "1.1.1.1:53"   # Use Cloudflare's own DNS to verify propagation quickly
+          - "8.8.8.8:53"

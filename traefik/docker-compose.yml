@@ -1,0 +1,36 @@
+services:
+  traefik:
+    image: traefik:v3.6
+    container_name: traefik
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      traefik:
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ${DOCKER_VOLUME_STORAGE:-/mnt/shared-storage/docker-stacks}/traefik/traefik.yml:/etc/traefik/traefik.yml:ro
+      - ${DOCKER_VOLUME_STORAGE:-/mnt/shared-storage/docker-stacks}/traefik/dynamic:/etc/traefik/dynamic:ro
+      - traefik-certs:/letsencrypt
+    environment:
+      - TZ=${TZ:-UTC}
+      - CF_DNS_API_TOKEN=${CF_DNS_API_TOKEN}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.dashboard.rule=Host(`${TRAEFIK_DOMAIN:-traefik.localhost}`)"
+      - "traefik.http.routers.dashboard.service=api@internal"
+      - "traefik.http.routers.dashboard.entrypoints=websecure"
+      - "traefik.http.routers.dashboard.tls.certresolver=letsencrypt"
+
+volumes:
+  traefik-certs:
+    driver: local
+    driver_opts:
+      type: none
+      device: ${DOCKER_VOLUME_STORAGE:-/mnt/shared-storage/docker-stacks}/traefik/certs
+      o: bind
+
+networks:
+  traefik:
+    name: traefik
+    driver: bridge
