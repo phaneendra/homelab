@@ -36,18 +36,18 @@ http:
   services:
     pmox1:
       loadBalancer:
-        serversTransport: insecureSkipVerify@file
+        serversTransport: insecureSkipVerify
         servers:
           - url: "https://192.168.0.8:8006"
 
     pihole:
       loadBalancer:
-        serversTransport: insecureSkipVerify@file
+        serversTransport: insecureSkipVerify
         servers:
           - url: "https://192.168.0.12"
 
     arcane:
       loadBalancer:
-        serversTransport: insecureSkipVerify@file
+        serversTransport: insecureSkipVerify
         servers:
           - url: "https://192.168.0.11:3552"
