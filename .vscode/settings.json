@@ -1,3 +1,7 @@
 {
-  "conventionalCommits.scopes": ["project"]
+  "conventionalCommits.scopes": [
+    "project",
+    "arcane",
+    "traefik"
+  ]
 }
