@@ -29,11 +29,6 @@ providers:
     directory: /etc/traefik/dynamic   # Shared middlewares and non-Docker routes
     watch: true                       # Picks up changes without restarting Traefik
 
-# Exposes Traefik's own metrics at http://traefik:8082/metrics for Prometheus
-metrics:
-  prometheus:
-    entryPoint: metrics
-
 log:
   level: INFO
 
