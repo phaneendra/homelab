@@ -2,6 +2,7 @@
   "conventionalCommits.scopes": [
     "project",
     "arcane",
-    "traefik"
+    "traefik",
+    "cloudflared"
   ]
 }
