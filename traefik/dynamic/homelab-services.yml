@@ -1,12 +1,29 @@
 http:
+  middlewares:
+    lan-only:
+      ipAllowList:
+        sourceRange:
+          - "192.168.0.0/24"
+          - "100.64.0.0/10"
+
+    secure-headers:
+      headers:
+        browserXssFilter: true
+        contentTypeNosniff: true
+        frameDeny: true
+        stsSeconds: 31536000
+        stsIncludeSubdomains: true
+        stsPreload: true
+        referrerPolicy: strict-origin-when-cross-origin
+
   routers:
     pmox1:
       rule: "Host(`pve.phanee.in`)"
       entryPoints:
         - websecure
       middlewares:
-        - secure-headers@file
-        - lan-only@file
+        - secure-headers
+        - lan-only
       service: pmox1
       tls:
         certResolver: letsencrypt
@@ -16,8 +33,8 @@ http:
       entryPoints:
         - websecure
       middlewares:
-        - secure-headers@file
-        - lan-only@file
+        - secure-headers
+        - lan-only
       service: pihole
       tls:
         certResolver: letsencrypt
@@ -27,11 +44,15 @@ http:
       entryPoints:
         - websecure
       middlewares:
-        - secure-headers@file
-        - lan-only@file
+        - secure-headers
+        - lan-only
       service: arcane
       tls:
         certResolver: letsencrypt
+
+  serversTransports:
+    insecureSkipVerify:
+      insecureSkipVerify: true
 
   services:
     pmox1:

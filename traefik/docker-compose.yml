@@ -13,8 +13,8 @@ services:
       traefik:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ${DOCKER_VOLUME_STORAGE:-/mnt/shared-storage/docker-stacks}/traefik/traefik.yml:/etc/traefik/traefik.yml:ro
-      - ${DOCKER_VOLUME_STORAGE:-/mnt/shared-storage/docker-stacks}/traefik/dynamic:/etc/traefik/dynamic:ro
+      - ./traefik.yml:/etc/traefik/traefik.yml:ro
+      - ./dynamic:/etc/traefik/dynamic:ro
       - traefik-certs:/letsencrypt
     environment:
       - TZ=${TZ:-UTC}
