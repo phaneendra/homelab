@@ -16,10 +16,18 @@ services:
       - TZ=${TZ:-UTC}
       - CF_DNS_API_TOKEN=${CF_DNS_API_TOKEN}
     ports:
-      - "80:80"
-      - "443:443/tcp"
-      - "443:443/udp"
-      - "8080:8080"
+      - target: 80
+        published: 80
+        protocol: tcp
+        mode: host
+      - target: 443
+        published: 443
+        protocol: tcp
+        mode: host
+      - target: 443
+        published: 443
+        protocol: udp
+        mode: host
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.dashboard.rule=Host(`${TRAEFIK_DOMAIN:-traefik.localhost}`)"
