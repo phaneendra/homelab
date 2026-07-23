@@ -38,7 +38,7 @@ accessLog: {}   # Log every request — useful for troubleshooting
 certificatesResolvers:
   letsencrypt:
     acme:
-      email: "daniel@virtuallyboring.com"
+      email: "phaneendra.krishnareddy@gmail.com"
       storage: /letsencrypt/acme.json   # Persisted via the traefik-certs volume
       dnsChallenge:
         provider: cloudflare
