@@ -33,9 +33,9 @@ http:
       tls:
         certResolver: letsencrypt
 
-  serversTransports:
-    insecureSkipVerify:
-      insecureSkipVerify: true
+  # serversTransports:
+  #   insecureSkipVerify:
+  #     insecureSkipVerify: true
 
   services:
     pmox1:

@@ -38,7 +38,7 @@ providers:
 log:
   level: INFO
 
-accessLog: {}   # Log every request — useful for troubleshooting
+# accessLog: {}   # Log every request — useful for troubleshooting
 
 # Automatic Let's Encrypt TLS certificates via Cloudflare DNS challenge
 certificatesResolvers:
