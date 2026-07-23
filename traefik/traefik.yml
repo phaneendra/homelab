@@ -16,6 +16,8 @@ entryPoints:
           permanent: true   # 301 — browsers cache this and stop hitting port 80
   websecure:
     address: ":443"
+    http3: {}
+    asDefault: true
     http:
       tls:
         certResolver: letsencrypt   # Default cert resolver for all HTTPS routers

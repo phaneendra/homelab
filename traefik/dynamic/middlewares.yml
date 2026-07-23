@@ -76,4 +76,3 @@ http:
       ipAllowList:
         sourceRange:
           - "192.168.0.0/24"    # LAN subnet
-          - "100.64.0.0/10"  # Tailscale
