@@ -6,6 +6,8 @@ services:
     container_name: arcane
     ports:
       - '3552:3552'
+    networks:
+      - traefik
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       # Map the named volume to Arcane's internal system folder
@@ -32,3 +34,6 @@ volumes:
       type: none
       o: bind
       device: ${DOCKER_VOLUME_STORAGE:-/mnt/shared-storage/docker-stacks}/arcane/data
+networks:
+  traefik:
+    external: true
