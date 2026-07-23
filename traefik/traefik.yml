@@ -1,5 +1,9 @@
 # Dashboard served via router label in compose.yaml; insecure: true opens port 8080
 # on the traefik bridge and macvlan (LAN-only) for traefik-manager API access
+global:
+  checkNewVersion: false
+  sendAnonymousUsage: false
+
 api:
   dashboard: true
   insecure: true
