@@ -1,0 +1,26 @@
+services:  
+  filestash:
+    image: machines/filestash:latest
+    container_name: filestash
+    restart: always
+    environment:
+      - APPLICATION_URL=${FILESTASH_APP_URL}
+    ports:
+      # Expose host port 2222 and route it to Filestash's internal SFTP engine port
+      - "2222:2222" 
+    volumes:
+      - ./config:/app/data/state/
+      # Mount the whole parent storage folder
+      - ${DOCKER_VOLUME_STORAGE:-/mnt/shared-storage}:/storage
+    networks:
+      - traefik
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.filestash.rule=Host(`${FILESTASH_DOMAIN:-filestash.yourdomain.com}`)"
+      - "traefik.http.routers.filestash.entrypoints=websecure"
+      - "traefik.http.routers.filestash.tls.certresolver=letsencrypt"
+      - "traefik.http.services.filestash.loadbalancer.server.port=8334"
+networks:
+  traefik:
+    external: true
+    name: traefik
