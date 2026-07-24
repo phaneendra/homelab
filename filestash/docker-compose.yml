@@ -6,6 +6,7 @@ services:
     user: "1000:1000"
     environment:
       - APPLICATION_URL=${FILESTASH_APP_URL}
+      - FORCE_HTTPS=true
     ports:
       # Expose host port 2222 and route it to Filestash's internal SFTP engine port
       - "2222:2222" 
