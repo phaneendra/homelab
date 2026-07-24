@@ -3,6 +3,7 @@ services:
     image: machines/filestash:latest
     container_name: filestash
     restart: always
+    user: "1000:1000"
     environment:
       - APPLICATION_URL=${FILESTASH_APP_URL}
     ports:
