@@ -4,6 +4,7 @@
     "arcane",
     "traefik",
     "cloudflared",
-    "filestash"
+    "filestash",
+    "syncthing"
   ]
 }
