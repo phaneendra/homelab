@@ -11,7 +11,7 @@ services:
       - APPLICATION_URL=${FILESTASH_DOMAIN:-filestash.yourdomain.com}
       - FORCE_HTTPS=true
     volumes:
-      - ~/docker-data/filestash-config:/app/data/state/
+      - ${DOCKER_USER_DATA:-/home/homelab}/docker-data/filestash-config:/app/data/state/
       # Mount the whole parent storage folder
       - ${DOCKER_VOLUME_STORAGE:-/mnt/shared-storage}:/storage
     networks:
