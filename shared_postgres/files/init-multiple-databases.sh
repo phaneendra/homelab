@@ -2,7 +2,7 @@
 set -e
 set -u
 
-user_password="${DB_PASSWORD:-$POSTGRES_PASSWORD}"
+user_password="${DB_PASSWORD:-$DB_PASSWORD}"
 
 if [ -n "$MULTIPLE_DATABASES" ]; then
   echo "Creating additional databases: $MULTIPLE_DATABASES"
