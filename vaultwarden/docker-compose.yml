@@ -3,12 +3,13 @@ services:
     image: vaultwarden/server:latest
     container_name: vaultwarden
     restart: unless-stopped
+    user: "1000:1000"
     environment:
       DOMAIN: https://${VAULTWARDEN_DOMAIN:-vaultwarden.yourdomain.com}
       ADMIN_TOKEN: ${VAULTWARDEN_ADMIN_TOKEN:?Set VAULTWARDEN_ADMIN_TOKEN in your environment}
       SIGNUPS_ALLOWED: ${VAULTWARDEN_SIGNUPS_ALLOWED:-false}
       INVITATIONS_ALLOWED: ${VAULTWARDEN_INVITATIONS_ALLOWED:-false}
-      ROCKET_PORT: 80
+      ROCKET_PORT: 8080
       ROCKET_WORKERS: 4
       DB_HOST: ${VAULTWARDEN_DB_HOST:-shared-postgres}
       DB_USER: ${VAULTWARDEN_DB_USER:-vaultwarden}
@@ -19,9 +20,9 @@ services:
     volumes:
       -  ./data/:/data/
     expose:
-      - "80"
+      - "8080"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:80/alive"]
+      test: ["CMD", "curl", "-f", "http://localhost:8080/alive"]
       interval: 30s
       timeout: 5s
       retries: 3
@@ -32,7 +33,7 @@ services:
       - "traefik.http.routers.vaultwarden.rule=Host(`${VAULTWARDEN_DOMAIN:-vaultwarden.yourdomain.com}`)"
       - "traefik.http.routers.vaultwarden.entrypoints=websecure"
       - "traefik.http.routers.vaultwarden.tls.certresolver=letsencrypt"
-      - "traefik.http.services.vaultwarden.loadbalancer.server.port=80"
+      - "traefik.http.services.vaultwarden.loadbalancer.server.port=8080"
     networks:
       - traefik
 
