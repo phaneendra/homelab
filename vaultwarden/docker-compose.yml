@@ -1,6 +1,7 @@
 services:
   vaultwarden:
     image: vaultwarden/server:latest
+    container_name: vaultwarden
     restart: unless-stopped
     environment:
       DOMAIN: https://${VAULTWARDEN_DOMAIN:-vaultwarden.yourdomain.com}
@@ -9,7 +10,21 @@ services:
       INVITATIONS_ALLOWED: ${VAULTWARDEN_INVITATIONS_ALLOWED:-false}
       ROCKET_PORT: 80
       ROCKET_WORKERS: 4
-      DATABASE_URL: ${VAULTWARDEN_DATABASE_URL:?Set VAULTWARDEN_DATABASE_URL in your environment}
+      DB_HOST: ${VAULTWARDEN_DB_HOST:-shared-postgres}
+      DB_USER: ${VAULTWARDEN_DB_USER:-vaultwarden}
+      DB_PASSWORD: ${VAULTWARDEN_DB_PASSWORD:?Set VAULTWARDEN_DB_PASSWORD in your environment}
+      DB_NAME: ${VAULTWARDEN_DB_NAME:-vaultwarden}
+      DB_PORT: ${VAULTWARDEN_DB_PORT:-5432}
+      DATABASE_URL: postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}
+    entrypoint: >
+      sh -c "
+      echo 'Waiting for PostgreSQL to start...';
+      while ! nc -z \$$DB_HOST \$$DB_PORT; do
+        sleep 1;
+      done;
+      echo 'PostgreSQL is up - starting Vaultwarden!';
+      exec /start.sh
+      "
     volumes:
       -  ./data/:/data/
     expose:
@@ -21,6 +36,7 @@ services:
       retries: 3
       start_period: 20s
     labels:
+      - com.getarcaneapp.arcane.depends-on=shared-postgres
       - "traefik.enable=true"
       - "traefik.http.routers.vaultwarden.rule=Host(`${VAULTWARDEN_DOMAIN:-vaultwarden.yourdomain.com}`)"
       - "traefik.http.routers.vaultwarden.entrypoints=websecure"
