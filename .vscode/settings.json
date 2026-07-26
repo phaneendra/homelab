@@ -5,6 +5,7 @@
     "traefik",
     "cloudflared",
     "filestash",
-    "syncthing"
+    "syncthing",
+    "vaultwarden"
   ]
 }

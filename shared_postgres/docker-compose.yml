@@ -9,13 +9,11 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB:-postgres}
       MULTIPLE_DATABASES: ${MULTIPLE_DATABASES:-}
-    # expose:
-    #   - "5432"
     ports:
       - "127.0.0.1:5432:5432"
     volumes:
-      - postgres-data:/var/lib/postgresql
-      - /mnt/shared-storage/postgres/init-scripts/init-multiple-databases.sh:/docker-entrypoint-initdb.d/init-multiple-databases.sh:ro
+      - ~/docker-data/postgres-data:/var/lib/postgresql
+      - ./files/init-multiple-databases.sh:/docker-entrypoint-initdb.d/init-multiple-databases.sh:ro
     healthcheck:
       test:
         [
@@ -26,17 +24,9 @@ services:
       timeout: 5s
       retries: 5
     networks:
-      - dokploy-network
-
-volumes:
-  postgres-data:
-    driver: local
-    driver_opts:
-      type: 'none'
-      o: 'bind'
-      # Absolute path to your VirtioFS 650GB storage location
-      device: '/mnt/shared-storage/postgres'
+      - traefik
 
 networks:
-  dokploy-network:
+  traefik:
     external: true
+    name: traefik
