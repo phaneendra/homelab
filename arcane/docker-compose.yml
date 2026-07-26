@@ -11,7 +11,7 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       # Map the named volume to Arcane's internal system folder
-      - arcane-system-data:/app/data
+      - ~/docker-data/arcane-data:/app/data
       # Map the shared storage mount point directly into Arcane
       - ${DOCKER_VOLUME_STORAGE:-/mnt/shared-storage}:/mnt/shared-storage
     environment:
@@ -25,15 +25,7 @@ services:
       - JWT_SECRET=${ARCANE_JWT_SECRET:?}
     cgroup: host
     restart: unless-stopped
-
-volumes:
-  # Named volume backed by your specific /mnt/shared-storage directory
-  arcane-system-data:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ${DOCKER_VOLUME_STORAGE:-/mnt/shared-storage/docker-stacks}/arcane/data
 networks:
   traefik:
     external: true
+    name: traefik

@@ -9,6 +9,7 @@ services:
       INVITATIONS_ALLOWED: ${VAULTWARDEN_INVITATIONS_ALLOWED:-false}
       ROCKET_PORT: 80
       ROCKET_WORKERS: 4
+      DATABASE_URL: ${VAULTWARDEN_DATABASE_URL:?Set VAULTWARDEN_DATABASE_URL in your environment}
     volumes:
       -  ./data/:/data/
     expose:

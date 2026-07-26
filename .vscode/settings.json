@@ -6,6 +6,7 @@
     "cloudflared",
     "filestash",
     "syncthing",
-    "vaultwarden"
+    "vaultwarden",
+    "shared-postgres"
   ]
 }

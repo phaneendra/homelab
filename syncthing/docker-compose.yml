@@ -7,7 +7,7 @@ services:
       - PUID=1000
       - PGID=1000
     volumes:
-      - ./config:/var/syncthing/config
+      - ~/docker-data/syncthing-config:/var/syncthing/config
       - ${DOCKER_VOLUME_STORAGE:-/mnt/shared-storage}/data:/var/syncthing/data
     ports:
       - "22000:22000/tcp"
