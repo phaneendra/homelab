@@ -39,7 +39,7 @@ services:
     command: ["sh", "-c", "node ./scripts/self-host-predeploy.js"]
     environment:
       - REDIS_SERVER_HOST=redis
-      - DATABASE_URL=postgres://affine:${POSTGRES_PASSWORD}@shared-postgres:5432/affine
+      - DATABASE_URL=postgresql://affine:${POSTGRES_PASSWORD}@shared-postgres:5432/affine
       - AFFINE_INDEXER_ENABLED=false
     depends_on:
       redis:
