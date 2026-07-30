@@ -1,0 +1,65 @@
+name: affine
+services:
+  affine:
+    image: ghcr.io/toeverything/affine:stable
+    container_name: affine_server
+    ports:
+      - '3010:3010'
+    depends_on:
+      redis:
+        condition: service_healthy
+      affine_migration:
+        condition: service_completed_successfully
+    volumes:
+      - ${DOCKER_VOLUME_STORAGE:-/mnt/shared-storage}/data/affine/storage:/root/.affine/storage:rw
+      - ./config:/root/.affine/config
+    environment:
+      - REDIS_SERVER_HOST=redis
+      - DATABASE_URL=postgresql://affine:${POSTGRES_PASSWORD}@shared-postgres:5432/affine
+      - AFFINE_INDEXER_ENABLED=false
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.affine.rule=Host(`${AFFINE_DOMAIN:-affine.phanee.in}`)"
+      - "traefik.http.routers.affine.entrypoints=websecure"
+      - "traefik.http.routers.affine.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.affine.tls=true"
+      - "traefik.http.services.affine.loadbalancer.server.port=3010"
+      - "traefik.http.routers.affine.middlewares=secure-headers@file,lan-only@file"
+    networks:
+      - traefik
+
+  affine_migration:
+    image: ghcr.io/toeverything/affine:stable
+    container_name: affine_migration_job
+    volumes:
+      - ${DOCKER_VOLUME_STORAGE:-/mnt/shared-storage}/data/affine/storage:/root/.affine/storage:rw
+      - ./config:/root/.affine/config
+    command: ['sh', '-c', 'node ./scripts/self-host-predeploy.js']
+    environment:
+      - REDIS_SERVER_HOST=redis
+      - DATABASE_URL=postgresql://affine:${POSTGRES_PASSWORD}@shared-postgres:5432/affine
+      - AFFINE_INDEXER_ENABLED=false
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - traefik
+
+  redis:
+    image: redis
+    container_name: affine_redis
+    healthcheck:
+      test: ['CMD', 'redis-cli', '--raw', 'incr', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - traefik
+
+networks:
+  traefik:
+    external: true
+    name: traefik
+
