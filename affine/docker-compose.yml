@@ -4,7 +4,7 @@ services:
     image: ghcr.io/toeverything/affine:stable
     container_name: affine_server
     ports:
-      - '3010:3010'
+      - "3010:3010"
     depends_on:
       redis:
         condition: service_healthy
@@ -17,6 +17,7 @@ services:
       - REDIS_SERVER_HOST=redis
       - DATABASE_URL=postgresql://affine:${POSTGRES_PASSWORD}@shared-postgres:5432/affine
       - AFFINE_INDEXER_ENABLED=false
+      - AFFINE_EXTERNAL_URL=${AFFINE_EXTERNAL_URL:-https://affine.phanee.in}
     restart: unless-stopped
     labels:
       - "traefik.enable=true"
@@ -35,10 +36,10 @@ services:
     volumes:
       - ${DOCKER_VOLUME_STORAGE:-/mnt/shared-storage}/data/affine/storage:/root/.affine/storage:rw
       - ./config:/root/.affine/config
-    command: ['sh', '-c', 'node ./scripts/self-host-predeploy.js']
+    command: ["sh", "-c", "node ./scripts/self-host-predeploy.js"]
     environment:
       - REDIS_SERVER_HOST=redis
-      - DATABASE_URL=postgresql://affine:${POSTGRES_PASSWORD}@shared-postgres:5432/affine
+      - DATABASE_URL=postgres://affine:${POSTGRES_PASSWORD}@shared-postgres:5432/affine
       - AFFINE_INDEXER_ENABLED=false
     depends_on:
       redis:
@@ -50,7 +51,7 @@ services:
     image: redis
     container_name: affine_redis
     healthcheck:
-      test: ['CMD', 'redis-cli', '--raw', 'incr', 'ping']
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -62,4 +63,3 @@ networks:
   traefik:
     external: true
     name: traefik
-
