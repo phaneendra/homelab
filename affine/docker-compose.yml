@@ -28,6 +28,7 @@ services:
       - "traefik.http.routers.affine.tls=true"
       - "traefik.http.services.affine.loadbalancer.server.port=3010"
       - "traefik.http.middlewares.affine-headers.headers.customrequestheaders.X-Forwarded-Proto=https"
+      - "traefik.http.middlewares.affine-headers.headers.customrequestheaders.X-Forwarded-Host=`${AFFINE_DOMAIN:-affine.phanee.in}`"
       - "traefik.http.routers.affine.middlewares=secure-headers@file,lan-only@file,affine-headers"
     networks:
       - traefik
