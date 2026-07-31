@@ -27,7 +27,8 @@ services:
       - "traefik.http.routers.affine.tls.certresolver=letsencrypt"
       - "traefik.http.routers.affine.tls=true"
       - "traefik.http.services.affine.loadbalancer.server.port=3010"
-      - "traefik.http.routers.affine.middlewares=secure-headers@file,lan-only@file"
+      - "traefik.http.middlewares.affine-headers.headers.customrequestheaders.X-Forwarded-Proto=https"
+      - "traefik.http.routers.affine.middlewares=secure-headers@file,lan-only@file,affine-headers"
     networks:
       - traefik
 
