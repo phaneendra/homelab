@@ -28,7 +28,7 @@ services:
       - "traefik.http.routers.zennotes.tls.certresolver=letsencrypt"
       - "traefik.http.routers.zennotes.tls=true"
       - "traefik.http.services.zennotes.loadbalancer.server.port=7878"
-      - "traefik.http.routers.zennotes.middlewares=secure-headers,lan-only"
+      - "traefik.http.routers.zennotes.middlewares=secure-headers@file,lan-only@file"
     networks:
       - traefik
 
