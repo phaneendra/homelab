@@ -1,0 +1,37 @@
+name: zennotes
+services:
+  zennotes:
+    image: adibhanna/zennotes:latest
+    container_name: zennotes
+    restart: unless-stopped
+    ports:
+      - "7878:7878"
+    environment:
+      - ZENNOTES_AUTH_TOKEN=${ZENNOTES_AUTH_TOKEN}
+      - ZENNOTES_BEHIND_TLS=1
+      - ZENNOTES_TRUSTED_PROXIES=${ZENNOTES_TRUSTED_PROXIES:-}
+    volumes:
+      - ${DOCKER_VOLUME_STORAGE:-/mnt/shared-storage}/data/Documents/PHVault:/workspace:rw
+      - ${DOCKER_USER_DATA:-/home/homelab}/docker-data/zennotes-config/data:/data:rw
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.zennotes.rule=Host(`${ZENN_DOMAIN:-zennotes.phanee.in}`)"
+      - "traefik.http.routers.zennotes.entrypoints=websecure"
+      - "traefik.http.routers.zennotes.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.zennotes.tls=true"
+      - "traefik.http.services.zennotes.loadbalancer.server.port=7878"
+      - "traefik.http.routers.zennotes.middlewares=secure-headers,lan-only"
+    networks:
+      - traefik
+
+networks:
+  traefik:
+    external: true
+    name: traefik

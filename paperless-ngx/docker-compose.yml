@@ -1,4 +1,3 @@
-
 services:
   broker:
     image: redis:7
@@ -113,3 +112,4 @@ networks:
     driver: bridge
   traefik:
     external: true
+    name: traefik
