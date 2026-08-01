@@ -4,6 +4,7 @@ services:
     image: adibhanna/zennotes:latest
     container_name: zennotes
     restart: unless-stopped
+    user: "1000:1000"
     ports:
       - "7878:7878"
     environment:
