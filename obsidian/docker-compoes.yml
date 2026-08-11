@@ -10,7 +10,7 @@ services:
       - RUSTFS_ROOT_USER=${RUSTFS_ROOT_USER:-admin}
       - RUSTFS_ROOT_PASSWORD=${RUSTFS_ROOT_PASSWORD}
     volumes:
-      - ${DOCKER_USER_DATA:-/home/homelab}/docker-data/rustfs_data:/data # Separate storage for your S3 bucket data
+      - ${DOCKER_USER_DATA:-/home/homelab}/docker-data/rustfs-data:/data # Separate storage for your S3 bucket data
     restart: unless-stopped
     networks:
       - traefik
@@ -35,7 +35,7 @@ services:
       - GID=1000
       - TZ=Asia/Kolkata
     volumes:
-      - ${DOCKER_USER_DATA:-/home/homelab}/docker-data/obsidian_config:/config # Configuration & plugin settings
+      - ${DOCKER_USER_DATA:-/home/homelab}/docker-data/obsidian-config:/config # Configuration & plugin settings
       - ${DOCKER_VOLUME_STORAGE:-/mnt/shared-storage}/data/PHVault:/vault # Separate storage for your raw markdown notes
     restart: unless-stopped
     networks:
