@@ -6,7 +6,8 @@ services:
     command: server /data
     user: "${UID:-1000}:${GID:-1000}"
     ports:
-      - "9000:9000" # Combined S3 API and Web Console port
+      - "9000:9000" # S3 API port
+      - "9001:9001" # Web Console port
     environment:
       - RUSTFS_ROOT_USER=${RUSTFS_ROOT_USER:-admin}
       - RUSTFS_ROOT_PASSWORD=${RUSTFS_ROOT_PASSWORD}
@@ -18,11 +19,17 @@ services:
     labels:
       - "traefik.enable=true"
       # S3 API Router (e.g., ://yourdomain.com)
-      - "traefik.http.routers.rustfs.rule=Host(`${RUSTFS_DOMAIN:-rustfs.localhost}`)"
+      - "traefik.http.routers.rustfs.rule=Host(`${RUSTFS_S3_DOMAIN:-s3.localhost}`)"
       - "traefik.http.routers.rustfs.entrypoints=websecure"
       - "traefik.http.routers.rustfs.tls=true"
       - "traefik.http.routers.rustfs.tls.certresolver=letsencrypt"
       - "traefik.http.services.rustfs.loadbalancer.server.port=9000"
+      # 2. Web Console Router (for browser access)
+      - "traefik.http.routers.rustfs-console.rule=Host(`${RUSTFS_DOMAIN:-rustfs.localhost}`)"
+      - "traefik.http.routers.rustfs-console.entrypoints=websecure"
+      - "traefik.http.routers.rustfs-console.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.rustfs-console.service=rustfs-console-svc"
+      - "traefik.http.services.rustfs-console-svc.loadbalancer.server.port=9001"
 
   # Obsidian Web Server (Accessible via Web Browser)
   obsidian-web:
