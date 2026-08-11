@@ -42,6 +42,7 @@ services:
       - PUID=${UID:-1000}
       - GUID=${GID:-1000}
       - TZ=Asia/Kolkata
+      - DISABLE_GPU=true
     volumes:
       - ${DOCKER_USER_DATA:-/home/homelab}/docker-data/obsidian-config:/config # Configuration & plugin settings
       - ${DOCKER_VOLUME_STORAGE:-/mnt/shared-storage}/data/PHVault:/vault # Separate storage for your raw markdown notes
