@@ -4,6 +4,7 @@ services:
     image: rustfs/rustfs:latest
     container_name: rustfs_server
     command: server /data
+    user: "${UID:-1000}:${GID:-1000}"
     ports:
       - "9000:9000" # Combined S3 API and Web Console port
     environment:
