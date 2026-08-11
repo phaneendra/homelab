@@ -1,0 +1,54 @@
+services:
+  # RustFS Object Storage Server
+  rustfs:
+    image: rustfs/rustfs:latest
+    container_name: rustfs_server
+    command: server /data
+    ports:
+      - "9000:9000" # Combined S3 API and Web Console port
+    environment:
+      - RUSTFS_ROOT_USER=${RUSTFS_ROOT_USER:-admin}
+      - RUSTFS_ROOT_PASSWORD=${RUSTFS_ROOT_PASSWORD}
+    volumes:
+      - ${DOCKER_USER_DATA:-/home/homelab}/docker-data/rustfs_data:/data # Separate storage for your S3 bucket data
+    restart: unless-stopped
+    networks:
+      - traefik
+    labels:
+      - "traefik.enable=true"
+      # S3 API Router (e.g., ://yourdomain.com)
+      - "traefik.http.routers.rustfs.rule=Host(`${RUSTFS_DOMAIN:-rustfs.localhost}`)"
+      - "traefik.http.routers.rustfs.entrypoints=websecure"
+      - "traefik.http.routers.rustfs.tls=true"
+      - "traefik.http.routers.rustfs.tls.certresolver=letsencrypt"
+      - "traefik.http.services.rustfs.loadbalancer.server.port=9000"
+
+  # Obsidian Web Server (Accessible via Web Browser)
+  obsidian-web:
+    image: lscr.io/linuxserver/obsidian:latest
+    container_name: obsidian_web
+    ports:
+      - "3000:3000" # Web UI HTTP
+      - "3001:3001" # Web UI HTTPS
+    environment:
+      - PID=1000
+      - GID=1000
+      - TZ=Asia/Kolkata
+    volumes:
+      - ${DOCKER_USER_DATA:-/home/homelab}/docker-data/obsidian_config:/config # Configuration & plugin settings
+      - ${DOCKER_VOLUME_STORAGE:-/mnt/shared-storage}/data/PHVault:/vault # Separate storage for your raw markdown notes
+    restart: unless-stopped
+    networks:
+      - traefik
+    labels:
+      - "traefik.enable=true"
+      # Obsidian Web Router (e.g., ://yourdomain.com)
+      - "traefik.http.routers.obsidian.rule=Host(`${OBSIDIAN_DOMAIN:-obsidian.localhost}`)"
+      - "traefik.http.routers.obsidian.entrypoints=websecure"
+      - "traefik.http.routers.obsidian.tls=true"
+      - "traefik.http.routers.obsidian.tls.certresolver=letsencrypt"
+      - "traefik.http.services.obsidian.loadbalancer.server.port=3000"
+networks:
+  traefik:
+    external: true
+    name: traefik
