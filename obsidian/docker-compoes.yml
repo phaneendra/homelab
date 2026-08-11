@@ -39,8 +39,8 @@ services:
       - "3000:3000" # Web UI HTTP
       - "3001:3001" # Web UI HTTPS
     environment:
-      - PID=1000
-      - GID=1000
+      - PUID=${UID:-1000}
+      - GUID=${GID:-1000}
       - TZ=Asia/Kolkata
     volumes:
       - ${DOCKER_USER_DATA:-/home/homelab}/docker-data/obsidian-config:/config # Configuration & plugin settings
