@@ -12,7 +12,7 @@ services:
       - ZENNOTES_BEHIND_TLS=1
       - ZENNOTES_TRUSTED_PROXIES=${ZENNOTES_TRUSTED_PROXIES:-}
     volumes:
-      - ${DOCKER_VOLUME_STORAGE:-/mnt/shared-storage}/data/Documents/PHVault:/workspace:rw
+      - ${DOCKER_VOLUME_STORAGE:-/mnt/shared-storage}/data/PHVault:/workspace:rw
       - ${DOCKER_USER_DATA:-/home/homelab}/docker-data/zennotes-config/data:/data:rw
     read_only: true
     tmpfs:
