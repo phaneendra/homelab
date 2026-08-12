@@ -19,11 +19,13 @@ services:
     labels:
       - "traefik.enable=true"
       # S3 API Router (e.g., ://yourdomain.com)
-      - "traefik.http.routers.rustfs.rule=Host(`${RUSTFS_S3_DOMAIN:-s3.localhost}`)"
-      - "traefik.http.routers.rustfs.entrypoints=websecure"
-      - "traefik.http.routers.rustfs.tls=true"
-      - "traefik.http.routers.rustfs.tls.certresolver=letsencrypt"
-      - "traefik.http.services.rustfs.loadbalancer.server.port=9000"
+      - "traefik.http.routers.rustfs-api.rule=Host(`${RUSTFS_S3_DOMAIN:-s3.localhost}`)"
+      - "traefik.http.routers.rustfs-api.entrypoints=websecure"
+      - "traefik.http.routers.rustfs-api.tls=true"
+      - "traefik.http.routers.rustfs-api.tls.certresolver=letsencrypt" # Match your Traefik resolver name
+      - "traefik.http.routers.rustfs-api.service=rustfs-api-svc" # 👈 Links router to API service
+      - "traefik.http.services.rustfs-api-svc.loadbalancer.server.port=9000"
+
       # 2. Web Console Router (for browser access)
       - "traefik.http.routers.rustfs-console.rule=Host(`${RUSTFS_DOMAIN:-rustfs.localhost}`)"
       - "traefik.http.routers.rustfs-console.entrypoints=websecure"
