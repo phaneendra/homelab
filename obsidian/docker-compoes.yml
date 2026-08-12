@@ -24,7 +24,14 @@ services:
       - "traefik.http.routers.rustfs-api.tls=true"
       - "traefik.http.routers.rustfs-api.tls.certresolver=letsencrypt" # Match your Traefik resolver name
       - "traefik.http.routers.rustfs-api.service=rustfs-api-svc" # 👈 Links router to API service
+      - "traefik.http.routers.rustfs-api.middlewares=rustfs-cors" # 👈 Links router to CORS middleware
       - "traefik.http.services.rustfs-api-svc.loadbalancer.server.port=9000"
+
+      # 2. CORS Middleware Headers (Fixes "Failed to fetch" in Electron/Obsidian)
+      - "traefik.http.middlewares.rustfs-cors.headers.accesscontrolallowmethods=GET,PUT,POST,DELETE,HEAD,OPTIONS"
+      - "traefik.http.middlewares.rustfs-cors.headers.accesscontrolallowheaders=*"
+      - "traefik.http.middlewares.rustfs-cors.headers.accesscontrolalloworiginlist=*"
+      - "traefik.http.middlewares.rustfs-cors.headers.accesscontrolexposeheaders=ETag,x-amz-request-id,x-amz-id-2"
 
       # 2. Web Console Router (for browser access)
       - "traefik.http.routers.rustfs-console.rule=Host(`${RUSTFS_DOMAIN:-rustfs.localhost}`)"
